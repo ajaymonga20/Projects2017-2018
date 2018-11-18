@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <meta charset="UTF-8">
+        <title>Quadratic Calculator</title>
+</head>
+
+
+<body>
+
+a = <input id = "a" type= "number" value = "1"> <br/>
+
+b = <input id = "b" type = "number" value="5"> <br/>
+
+c = <input id = "c" type = "number" value ="6"> <br/><br/>
+
+<button onclick = "calcRoot()">Find Roots</button>
+
+<br/>
+<p id = "display"></p>
+<script>
+    //This is a comment because this is interpreted as Javascript
+    //As soon as you load your page the scripts runs!
+    console.log("Running");
+
+    function calcRoot() {
+
+        console.log("Running calcRoot");
+        //Step 1: Get number from box
+        a = document.getElementById("a").value;
+        b = document.getElementById("b").value;
+        c = document.getElementById("c").value;
+
+        console.log(a,b,c);
+        //Step 2: Calculate Roots
+        x_1 = (-1*b - Math.sqrt(b*b - 4*a*c)/(2*a));
+        x_2 = (-1*b - Math.sqrt(b*b - 4*a*c)/(2*a));
+
+
+
+        console.log(x_1,x_2)
+        //Step 3: Display Result
+        //Recommend: Build your string first.
+        display = a+"x<sup/>2<sup/> + "+b+" x + "+c+" = 0<br/>";
+        display = display + "Root 1: "+x_1"<br/>Root 2:+"x_2;
+
+        document.getElementById("display").innerHTML = display;
+
+
+
+
+    }
+
+
+</script>
+
+</body>
+</html>

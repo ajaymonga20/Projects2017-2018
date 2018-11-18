@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Ajay - Brick Breaker</title>
+    <style>
+        * { padding: 0; margin: 0; }
+        canvas {
+            background-image: url("https://t4.ftcdn.net/jpg/01/66/51/01/240_F_166510116_niSYDhZej06t5nlHEjqInfjPFt6ijRzN.jpg");
+            display: block;
+            margin: 0 auto;
+            border-radius: 10px;
+            padding-top:25px;
+
+
+        }
+
+        body {
+            background-color: #ffffff;
+            font-family: "Comic Sans MS", cursive, sans-serif;
+            font-size: medium;
+            color: #202cff;
+
+
+        }
+
+        .slidecontainer {
+            width: 20%;
+        }
+
+        .slider {
+            -webkit-appearance: none;
+            width: 105%;
+            height: 25px;
+            background: #cc0011;
+            outline: none;
+            opacity: 0.8;
+            border-radius: 10px;
+            position: relative;
+            bottom: 600px;
+
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 15px;
+            height: 25px;
+            background: #202cff;
+            cursor: pointer;
+            border-radius: 10px;
+        }
+
+        .slidecontainer2 {
+            width: 20%;
+        }
+
+        .slider2 {
+            -webkit-appearance: none;
+            width: 105%;
+            height: 25px;
+            background: #cc0011;
+            outline: none;
+            opacity: 0.8;
+            border-radius: 10px;
+            position: relative;
+            bottom: 500px;
+
+        }
+
+        .slider2::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 15px;
+            height: 25px;
+            background: #202cff;
+            cursor: pointer;
+            border-radius: 10px;
+
+        }
+
+
+        .slidecontainer3 {
+            width: 20%;
+        }
+
+        .slider3 {
+            -webkit-appearance: none;
+            width: 105%;
+            height: 25px;
+            background: #cc0011;
+            outline: none;
+            opacity: 0.8;
+            border-radius: 10px;
+            position: relative;
+            bottom: 400px;
+
+        }
+
+        .slider3::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 15px;
+            height: 25px;
+            background: #202cff;
+            cursor: pointer;
+            border-radius: 10px;
+
+        }
+
+
+    </style>
+
+</head>
+<body>
+
+<h1 align="center">Hockey Brick Breaker</h1>
+
+<canvas id="myCanvas" width="800" height="600"></canvas>
+Auto-Pilot
+<input id="checkBox" type="checkBox" onclick = "clicked()">
+
+<div class="slidecontainer">
+    Paddle Width
+    <input type="range" min="40" max="150" value="150" class="slider" id="myRange" onchange= "sliderWidthfunction()" onchange="evalSlider()">
+</div>
+
+<div class="slidecontainer2">
+    <p>Ball Speed</p>
+    <input type="range" min="1" max="25" value="1" class="slider2" id="myRange2" onchange="sliderSpeedfunction()">
+</div>
+
+
+<div class="slidecontainer3">
+    <p>Ball Size</p>
+    <input type="range" min="10" max="50" value="1" class="slider3" id="myRange3" onchange="sliderBallfunction()">
+</div>
+
+
+<script>
+
+    document.body.style.backgroundColor = "White";
+
+
+    class Ball {
+
+        constructor(xpos,ypos) {
+            this.x = xpos;
+            this.y = ypos;
+            this.ballRadius = 10;
+            this.dx = 2;
+            this.dy = 2;
+        }
+    }
+
+
+    class Paddle {
+
+        constructor() {
+            this.paddleHeight = 10;
+            this.paddleWidth = 75;
+            this.paddleX = (canvas.width-this.paddleWidth)/2;
+        }
+
+    }
+
+    function evalSlider(){
+        var sliderValue = document.getElementById("myRange").value;
+        document.getElementById("slidecontainer").innerHTML = sliderValue;
+    }
+
+    function evalSlider2(){
+        var sliderValue = document.getElementById("myRange2").value;
+        document.getElementById("slidecontainer2").innerHTML = sliderValue;
+    }
+
+    function evalSlider3(){
+        var sliderValue = document.getElementById("myRange3").value;
+        document.getElementById("slidecontainer3").innerHTML = sliderValue;
+    }
+
+    function sliderWidthfunction() {
+        var num = parseInt(document.getElementById("myRange").value);
+        console.log(num)
+        paddle.paddleWidth = num;
+    }
+
+    function sliderSpeedfunction() {
+        console.log(document.getElementById("myRange2").value);
+        ball.dx = document.getElementById("myRange2").value;
+        ball.dy = document.getElementById("myRange2").value;
+    }
+
+    function sliderBallfunction() {
+        console.log(document.getElementById("myRange3").value);
+        ball.ballRadius = document.getElementById("myRange3").value;
+    }
+
+    function clicked(){
+        tracking = !tracking;
+        console.log("Clicked: "+tracking);
+    }
+
+    function myObstacle() {
+        myObstacle  = new component(10, 200, "green", 300, 120);
+    }
+
+    function UpdatemyObstacle() {
+        myObstacle.update();
+    }
+
+
+    var canvas = document.getElementById("myCanvas");
+    var ctx = canvas.getContext("2d");
+
+
+    var tracking = false; //true - paddle tacks ball
+
+    var ball = new Ball(canvas.width/2,canvas.height-30);
+    var paddle = new Paddle();
+
+
+    var rightPressed = false;
+    var leftPressed = false;
+    var brickRowCount = 9;
+    var brickColumnCount = 12;
+    var brickWidth = 75;
+    var brickHeight = 20;
+    var brickPadding = 10;
+    var brickOffsetTop = 30;
+    var brickOffsetLeft = 30;
+    var score = 0;
+    var HighScore = 0;
+    var lives = 5;
+    var myObstacle;
+
+    var bricks = [];
+    for(c=0; c<brickColumnCount; c++) {
+        bricks[c] = [];
+        for(r=0; r<brickRowCount; r++) {
+            bricks[c][r] = { x: 0, y: 0, status: 3};
+            console.log(bricks[c][r].color)
+        }
+    }
+
+
+
+    ball.x == paddle.paddleX;
+    document.addEventListener("keydown", keyDownHandler, false);
+    document.addEventListener("keyup", keyUpHandler, false);
+
+    function keyDownHandler(e) {
+        if(e.keyCode == 39) {
+            rightPressed = true;
+        }
+        else if(e.keyCode == 37) {
+            leftPressed = true;
+        }
+    }
+    function keyUpHandler(e) {
+        if(e.keyCode == 39) {
+            rightPressed = false;
+        }
+        else if(e.keyCode == 37) {
+            leftPressed = false;
+        }
+    }
+
+    function collisionDetection() {
+        for(c=0; c<brickColumnCount; c++) {
+            for(r=0; r<brickRowCount; r++) {
+                var b = bricks[c][r];
+                if(b.status > 0) {
+                    if(ball.x > b.x && ball.x < b.x+brickWidth && ball.y > b.y && ball.y < b.y+brickHeight) {
+                        ball.dy = -ball.dy;
+                        b.status = b.status - 1;
+                        score++;
+                        if (score >= HighScore) {
+                            HighScore = score;
+                        }
+
+                        var win = true;
+
+
+
+                        for (c1 = 0; c1 < brickColumnCount; c1++) {
+                            for (r1 = 0; r1 < brickRowCount; r1++) {
+                                if (bricks[c1][r1].status != 0) {
+                                    win = false;
+                                }
+                            }
+                        }
+                        if(win == true) {
+                            alert("YOU WIN, CONGRATS!");
+                            document.location.reload();
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    function drawBall() {
+        ctx.beginPath();
+        ctx.arc(ball.x, ball.y, ball.ballRadius, 0, Math.PI*2);
+        ctx.fillStyle = "#0095DD";
+        ctx.fill();
+        ctx.closePath();
+    }
+    function drawPaddle() {
+        ctx.beginPath();
+
+        if (tracking){
+            paddle.paddleX = ball.x - paddle.paddleWidth/2;
+
+        }
+
+        console.log(parseInt(paddle.paddleWidth))
+        ctx.rect(paddle.paddleX, canvas.height-paddle.paddleHeight, paddle.paddleWidth, paddle.paddleHeight);
+
+        ctx.fillStyle = "#0095DD";
+        ctx.fill();
+        ctx.closePath();
+    }
+
+
+
+    function drawBricks() {
+        for(c=0; c<brickColumnCount; c++) {
+            for(r=0; r<brickRowCount; r++) {
+                if(bricks[c][r].status > 0) {
+                    var brickX = (r*(brickWidth+brickPadding))+brickOffsetLeft;
+                    var brickY = (c*(brickHeight+brickPadding))+brickOffsetTop;
+                    bricks[c][r].x = brickX;
+                    bricks[c][r].y = brickY;
+                    ctx.beginPath();
+
+
+                    ctx.rect(brickX, brickY, brickWidth, brickHeight);
+
+                    if (bricks[c][r].status == 3) {
+                        ctx.fillStyle = "#0095DD"
+                    }
+                    else if (bricks[c][r].status == 2) {
+                        ctx.fillStyle = "#eec513"
+                    }
+                    else{
+                        ctx.fillStyle = "#ea7500"
+                    }
+                    ctx.fill();
+                    ctx.closePath();
+                }
+            }
+        }
+    }
+    function drawScore() {
+        ctx.font = "16px Arial";
+        ctx.fillStyle = "#0095dd";
+        ctx.fillText("Score: "+score, 377, 13);
+    }
+
+    function drawHighScore() {
+        ctx.font = "16px Arial";
+        ctx.fillStyle = "#0095dd";
+        ctx.fillText("High Score: "+HighScore, 55, 13);
+    }
+
+    function drawLives() {
+        ctx.font = "16px Arial";
+        ctx.fillStyle = "#0095DD";
+        ctx.fillText("Lives: "+lives, canvas.width-115, 13);
+    }
+
+
+    function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        drawBricks();
+        drawBall();
+        drawPaddle();
+        drawScore();
+        drawHighScore();
+        drawLives();
+        collisionDetection();
+
+        if(ball.x + ball.dx > canvas.width-ball.ballRadius || ball.x + ball.dx < ball.ballRadius) {
+            ball.dx = -ball.dx;
+        }
+        if(ball.y + ball.dy < ball.ballRadius) {
+            ball.dy = -ball.dy;
+        }
+        else if(ball.y + ball.dy > canvas.height-ball.ballRadius) {
+            if(ball.x > paddle.paddleX && ball.x < paddle.paddleX + paddle.paddleWidth) {
+                ball.dy = -ball.dy;
+            }
+            else {
+                lives--;
+                score = 0;
+                if(!lives) {
+                    alert("GAME OVER");
+                    document.location.reload();
+                }
+                else {
+                    ball.x = canvas.width/2;
+                    ball.y = canvas.height-30;
+                    ball.dx = 3;
+                    ball.dy = -3;
+                    paddle.paddleX = (canvas.width-paddle.paddleWidth)/2;
+                }
+            }
+        }
+
+        if(rightPressed && paddle.paddleX < canvas.width-paddle.paddleWidth) {
+            paddle.paddleX += 7;
+        }
+        else if(leftPressed && paddle.paddleX > 0) {
+            paddle.paddleX -= 7;
+        }
+
+
+        ball.x += ball.dx;
+        ball.y += ball.dy;
+        requestAnimationFrame(draw);
+    }
+
+    draw();
+</script>
+</body>
+</html>
